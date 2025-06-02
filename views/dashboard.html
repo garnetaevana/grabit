@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - Arm Robot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      color: #f0f0f0;
+      background-color: #121212;
+    }
+
+    .container {
+      padding: 2rem;
+    }
+
+    h1 {
+      color: #00bcd4;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .monitor {
+      background-color: #FFCBCB;
+      padding: 1rem;
+      border-radius: 8px;
+      height: 300px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 14px;
+      white-space: pre-line;
+      color: #000;
+    }
+
+    .status-box {
+      margin-top: 2rem;
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .status-card {
+      background-color: #212b36;
+      padding: 1rem;
+      border-radius: 8px;
+      width: 200px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    .status-card h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: #90caf9;
+    }
+
+    .status-card p {
+      font-size: 1.5rem;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="logo">
+      <img src="/image/logo.png" alt="Robot Logo" />
+      <span>GRABiT</span>
+    </div>
+
+    <div class="navbar-menu">
+      <a href="/about.html">About</a>
+      <a href="/">Home</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/controller">Controller</a>
+    </div>
+
+    <div class="start-now">
+      <form action="/logout" method="POST">
+        <button type="submit" class="btn-primary">Log Out</button>
+      </form> 
+    </div>
+  </header>
+
+  <div class="container">
+    <h1>Live Movement Logs</h1>
+    <div class="monitor" id="logDisplay">
+      <!-- Data log akan dimasukkan via JS -->
+    </div>
+
+    <div class="status-box">
+      <div class="status-card">
+        <h3>Servo-action</h3>
+        <p id="servo-action">Idle</p>
+      </div>
+      <div class="status-card">
+        <h3>Ultrasonic</h3>
+        <p id="ultrasonic">-- cm</p>
+      </div>
+      <div class="status-card">
+        <h3>Robot Status</h3>
+        <p id="system-status">Idle</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const logDisplay = document.getElementById('logDisplay');
+
+    function addLog(message) {
+      const timestamp = new Date().toLocaleTimeString();
+      logDisplay.innerText += `[${timestamp}] ${message}\n`;
+      logDisplay.scrollTop = logDisplay.scrollHeight;
+    }
+
+    setInterval(() => {
+      const moves = ["Right", "Left", "Forward", "Backward", "Idle"];
+      const move = moves[Math.floor(Math.random() * moves.length)];
+      document.getElementById("servo-action").textContent = move;
+
+      const distance = (Math.random() * 100).toFixed(2);
+      document.getElementById("ultrasonic").textContent = `${distance} cm`;
+
+      const systemOn = Math.random() > 0.3;
+      const systemStatus = systemOn ? "Online" : "Offline";
+      document.getElementById("system-status").textContent = systemStatus;
+
+      addLog(`Servo moved ${move}, Distance: ${distance}cm, Status: ${systemStatus}`);
+    }, 4000);
+  </script>
+</body>
+</html>

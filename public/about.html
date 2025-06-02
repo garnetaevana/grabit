@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tentang Kami</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+
+  
+  <!-- Custom Tailwind Config -->
+  <script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          blueDark: '#102C57',
+          blueBright: '#1679AB',
+          pinkBright: '#FFB1B1',
+          pinkSoft: '#FFCBCB',
+        }
+      }
+    }
+  }
+</script>
+</head>
+<body class="bg-pinkSoft text-blueDark font-sans">
+
+    <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="logo">
+      <img src="/image/logo.png" alt="Robot Logo" />
+      <span>GRABiT</span>
+    </div>
+
+    <nav class="navbar-menu">
+      <a href="/about.html">About</a>
+      <a href="/">Home</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/controller">Controller</a>
+    </nav>
+
+    <div class="start-now">
+      <a href="/login.html" class="btn-primary">Start Now</a>
+    </div>
+  </header>
+
+
+
+  <!-- Section: About -->
+  <section class="container mx-auto px-6 py-12 grid md:grid-cols-2 gap-8 items-center">
+    <div data-aos="fade-right">
+      <img src="https://source.unsplash.com/600x400/?team,technology" alt="Tim kami" class="rounded-xl shadow-md">
+    </div>
+    <div data-aos="fade-left">
+      <h2 class="text-2xl font-bold mb-4 text-blueBright">Kami Adalah Tim Inovatif</h2>
+      <p class="mb-4 text-gray-700">Kami berkomitmen menciptakan solusi digital yang berdampak. Dengan kombinasi kreativitas, teknologi, dan semangat kolaborasi, kami terus berkembang untuk memberikan yang terbaik bagi pengguna dan masyarakat.</p>
+      <a href="#team" class="bg-pinkBright text-white px-4 py-2 rounded hover:bg-pinkSoft transition">Lihat Tim Kami</a>
+    </div>
+  </section>
+
+  <!-- Section: Misi -->
+  <section class="bg-white py-12" id="mission">
+    <div class="container mx-auto px-6 text-center" data-aos="fade-up">
+      <h2 class="text-2xl font-bold mb-4 text-blueBright">Misi Kami</h2>
+      <p class="max-w-2xl mx-auto text-gray-600 mb-8">Memberdayakan individu dan organisasi melalui teknologi yang mudah diakses, inovatif, dan berkelanjutan.</p>
+      <img src="https://source.unsplash.com/600x300/?mission,goal" alt="Misi kami" class="mx-auto rounded-lg shadow">
+    </div>
+  </section>
+
+  <!-- Section: Our Team -->
+  <section class="py-12 bg-pinkSoft" id="team">
+    <div class="container mx-auto px-6 text-center">
+      <h2 class="text-2xl font-bold mb-6 text-blueBright" data-aos="zoom-in">Tim Hebat di Balik Layar</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-white p-6 rounded-lg shadow" data-aos="fade-up">
+          <img src="/image/yo.jpg" alt="CEO" class="mx-auto rounded-full mb-4 w-[120px] h-[120px] object-cover">
+          <h3 class="font-semibold">Yohana Anita</h3>
+          <p class="text-sm text-gray-500">Project Manager</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow" data-aos="fade-up" data-aos-delay="100">
+          <img src="/image/put.jpg" alt="CTO" class="mx-auto rounded-full mb-4 w-[120px] h-[120px] object-cover">
+          <h3 class="font-semibold">Putri Anisa</h3>
+          <p class="text-sm text-gray-500">Perancangan Hardware</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow" data-aos="fade-up" data-aos-delay="200">
+          <img src="/image/sal.jpg" alt="Designer" class="mx-auto rounded-full mb-4 w-[120px] h-[120px] object-cover">
+          <h3 class="font-semibold">Salma Rosidah</h3>
+          <p class="text-sm text-gray-500">System Design</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow" data-aos="fade-up" data-aos-delay="200">
+          <img src="/image/nev.jpg" alt="Software" class="mx-auto rounded-full mb-4 w-[120px] h-[120px] object-cover">
+          <h3 class="font-semibold">Garneta Evana</h3>
+          <p class="text-sm text-gray-500">Software Development</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="mt-12 text-center text-white font-[Orbitron] bg-gradient-to-r from-blueDark to-blueBright py-6">
+    <p>© 2025 Arm Robot Control Panel</p>
+  </footer>
+
+
+  <script>AOS.init();</script>
+
+</body>
+</html>

@@ -1,0 +1,97 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Orbitron', sans-serif;
+  background-color: #8ACCD5;
+  color: #DBD3D3;
+}
+
+/* ==== NAVBAR UTAMA ==== */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Orbitron', sans-serif;
+  flex-direction: column;
+  padding: 0.5rem 2rem;
+  background: linear-gradient(120deg, #BDDDE4, #8ACCD5);
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+/* ==== LOGO ==== */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #F8F8E1;
+}
+
+.logo img {
+  width: 40px;
+  height: 40px;
+}
+
+/* ==== MENU ==== */
+.navbar-menu {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+.navbar-menu a {
+  text-decoration: none;
+  color: #FF90BB;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+/* ==== TOMBOL START ==== */
+.start-now {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: -5px;
+}
+
+.btn-primary {
+  background-color: #F8F8E1;
+  color: #FF90BB;
+  padding: 8px 20px;
+  border-radius: 40px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.3s ease;
+  font-size: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:hover {
+  background-color: #FF90BB;
+  color: #FFC1DA;
+}
+
+/* ==== RESPONSIVE BREAKPOINT ==== */
+@media (min-width: 769px) {
+  .navbar {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .navbar-menu {
+    flex: 10;
+    justify-content: center;
+  }
+
+  .start-now {
+    justify-content: flex-end;
+    margin-top: 10px;
+  }
+}

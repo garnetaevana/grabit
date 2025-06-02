@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Controller Arm Robot</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body {
+      font-family: 'Orbitron', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-[#FFCBCB] text-gray-800">
+
+  <!-- NAVBAR (TIDAK DIUBAH) -->
+  <header class="navbar">
+    <div class="logo">
+      <img src="/image/logo.png" alt="Robot Logo" />
+      <span>GRABiT</span>
+    </div>
+    <div class="navbar-menu">
+      <a href="/about.html">About</a>
+      <a href="/">Home</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/controller">Controller</a>
+    </div>
+    <div class="start-now">
+      <form action="/logout" method="POST">
+        <button type="submit" class="btn-primary">Log Out</button>
+      </form> 
+    </div>
+  </header>
+
+  <!-- HEADER -->
+  <header class="bg-[#102C57] text-white py-6 text-center shadow-lg">
+    <h1 class="text-3xl font-bold">Arm Robot Controller</h1>
+    <p class="text-md">Kontrol 4 Sendi & Capit Robot</p>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="container mx-auto px-4 py-10">
+    <section class="flex flex-wrap justify-center gap-8">
+      <!-- Kontrol Servo -->
+      <div class="bg-white rounded-xl shadow-md p-6 w-72 text-center border-4 border-[#1679AB]">
+        <label class="text-xl mb-2 text-[#102C57]">Rotation</label>
+        <div class="text-2xl font-bold text-[#1679AB] mb-4" id="servo1Value">0</div>
+        <div class="space-x-2">
+          <button onclick="changeServo(1, -15)" class="bg-[#FFB1B1] hover:bg-[#FFCBCB] text-white px-4 py-2 rounded-md">-15</button>
+          <button onclick="changeServo(1, 15)" class="bg-[#FFB1B1] hover:bg-[#FFCBCB] text-white px-4 py-2 rounded-md">+15</button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-md p-6 w-72 text-center border-4 border-[#1679AB]">
+        <label class="text-xl mb-2 text-[#102C57]">Gripper</label>
+        <div class="text-2xl font-bold text-[#1679AB] mb-4" id="servo2Value">0</div>
+        <div class="space-x-2">
+          <button onclick="changeServo(2, -15)" class="bg-[#FFB1B1] hover:bg-[#FFCBCB] text-white px-4 py-2 rounded-md">-5</button>
+          <button onclick="changeServo(2, 15)" class="bg-[#FFB1B1] hover:bg-[#FFCBCB] text-white px-4 py-2 rounded-md">+5</button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-md p-6 w-72 text-center border-4 border-[#1679AB]">
+        <label class="text-xl mb-2 text-[#102C57]">Up - Down</label>
+        <div class="text-2xl font-bold text-[#1679AB] mb-4" id="servo3Value">50</div>
+        <div class="space-x-2">
+          <button onclick="changeServo(3, -15)" class="bg-[#FFB1B1] hover:bg-[#FFCBCB] text-white px-4 py-2 rounded-md">-15</button>
+          <button onclick="changeServo(3, 15)" class="bg-[#FFB1B1] hover:bg-[#FFCBCB] text-white px-4 py-2 rounded-md">+15</button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-md p-6 w-72 text-center border-4 border-[#1679AB]">
+        <label class="text-xl mb-2 text-[#102C57]">Forward - Back</label>
+        <div class="text-2xl font-bold text-[#1679AB] mb-4" id="servo4Value">40</div>
+        <div class="space-x-2">
+          <button onclick="changeServo(4, -15)" class="bg-[#FFB1B1] hover:bg-[#FFCBCB] text-white px-4 py-2 rounded-md">-15</button>
+          <button onclick="changeServo(4, 15)" class="bg-[#FFB1B1] hover:bg-[#FFCBCB] text-white px-4 py-2 rounded-md">+15</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sensor Status -->
+    <section class="mt-12 text-center">
+      <div class="bg-white rounded-xl shadow-lg inline-block px-8 py-6 border-t-8 border-[#1679AB]">
+        <p class="text-xl mb-2">Jarak Sensor: 
+          <span class="text-[#1679AB] font-bold" id="distanceValueHTML">---</span> cm
+        </p>
+        <div class="flex justify-center items-center gap-6 mt-4">
+          <div>
+            <span class="inline-block w-6 h-6 rounded-full bg-gray-400 border border-gray-700" id="led-green"></span>
+            <p class="text-sm mt-1 text-[#102C57]">Hijau</p>
+          </div>
+          <div>
+            <span class="inline-block w-6 h-6 rounded-full bg-gray-400 border border-gray-700" id="led-yellow"></span>
+            <p class="text-sm mt-1 text-[#102C57]">Kuning</p>
+          </div>
+          <div>
+            <span class="inline-block w-6 h-6 rounded-full bg-gray-400 border border-gray-700" id="led-red"></span>
+            <p class="text-sm mt-1 text-[#102C57]">Merah</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    var s1 = 0, s2 = 40, s3 = 50, s4 = 40;
+    const servoMin = [0, 0, 30, 40];
+    const servoMax = [180, 40, 150, 180];
+
+    function sendData() {
+      var xhttp = new XMLHttpRequest();
+      var url = "setPOS?servoPOS1=" + s1 + "&servoPOS2=" + s2 + "&servoPOS3=" + s3 + "&servoPOS4=" + s4;
+      xhttp.open("GET", url, true);
+      xhttp.send();
+    }
+
+    function changeServo(servoNum, increment) {
+      let currentValue, newValue, displayElement;
+      switch (servoNum) {
+        case 1:
+          currentValue = s1;
+          newValue = Math.max(servoMin[0], Math.min(servoMax[0], currentValue + increment));
+          s1 = newValue;
+          displayElement = document.getElementById("servo1Value");
+          break;
+        case 2:
+          currentValue = s2;
+          newValue = Math.max(servoMin[1], Math.min(servoMax[1], currentValue + increment));
+          s2 = newValue;
+          displayElement = document.getElementById("servo2Value");
+          break;
+        case 3:
+          currentValue = s3;
+          newValue = Math.max(servoMin[2], Math.min(servoMax[2], currentValue + increment));
+          s3 = newValue;
+          displayElement = document.getElementById("servo3Value");
+          break;
+        case 4:
+          currentValue = s4;
+          newValue = Math.max(servoMin[3], Math.min(servoMax[3], currentValue + increment));
+          s4 = newValue;
+          displayElement = document.getElementById("servo4Value");
+          break;
+      }
+      displayElement.innerText = newValue;
+      sendData();
+    }
+
+    function updateSensorStatus() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          var data = JSON.parse(this.responseText);
+          document.getElementById("distanceValueHTML").innerText = data.distance;
+          document.getElementById("led-red").className = data.ledRed ? "bg-red-500 w-6 h-6 rounded-full border border-gray-700" : "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+          document.getElementById("led-yellow").className = data.ledYellow ? "bg-yellow-400 w-6 h-6 rounded-full border border-gray-700" : "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+          document.getElementById("led-green").className = data.ledGreen ? "bg-green-500 w-6 h-6 rounded-full border border-gray-700" : "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+        }
+      };
+      xhttp.open("GET", "/sensorStatus", true);
+      xhttp.send();
+    }
+
+    setInterval(updateSensorStatus, 2000);
+    updateSensorStatus();
+  </script>
+</body>
+</html>

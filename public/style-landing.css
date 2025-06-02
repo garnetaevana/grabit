@@ -1,0 +1,102 @@
+
+body {
+  font-family: 'Orbitron', sans-serif;
+  background-color: #8ACCD5;
+  color: #DBD3D3;
+}
+
+/* HERO SECTION */
+.hero {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4rem 2rem;
+  background-image: url('/image/bg1.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: calc(100vh - 160px); /* Tinggi layar dikurangi tinggi header & footer */
+}
+
+.hero-text {
+  flex: 1;
+  min-width: 300px;
+  padding: 2rem;
+}
+
+.hero-text h1 {
+  font-size: 4.5rem;
+  font-weight: 1000;
+  line-height: 1.2;
+  color: #F8F8E1;
+}
+
+.hero-text h1 span {
+  color: #1679AB;
+}
+
+.btn-signin {
+  margin-top: 2rem;
+  padding: 15px 30px;
+  background-color: #102C57;
+  color: white;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  transition: 0.3s;
+}
+
+.btn-signin:hover {
+  background-color: #FFB1B1;
+}
+
+.hero-img {
+  flex: 1;
+  min-width: 250px;
+  text-align: center;
+  padding: 1rem;
+}
+
+.hero-img img {
+  max-width: 90%;
+  height: auto;
+}
+
+/* FOOTER */
+.footer {
+  background: linear-gradient(120deg, #102C57, #1679AB);
+  padding: 0.8rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: white;
+}
+
+/* GLOW TEXT */
+.glow-text {
+  color: #FFC1DA;
+  text-shadow:
+    0 0 3px #FFCBCB,
+    0 0 7px #FFC1DA,
+    0 0 10px #F8F8E1,
+    0 0 15px #F8F8E1;
+  font-weight: bold;
+}
+
+ 
+/* RESPONSIVE DESIGN */
+@media (max-width: 769px) {
+  .hero {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .hero-text h1 {
+    font-size: 2.2rem;
+  }
+  .hero-img img {
+    width: auto;
+  }
+  
+}

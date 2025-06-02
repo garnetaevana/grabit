@@ -1,0 +1,108 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Orbitron', sans-serif;
+  background-color: #132043;
+  color: #1F4172;
+}
+
+/* ==== NAVBAR UTAMA ==== */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Orbitron', sans-serif;
+  flex-direction: row;
+  padding: 1rem 2rem;
+  margin: 0;
+  background: linear-gradient(120deg, #1F4172, #132043);
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+/* ==== LOGO ==== */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #FFCBCB;
+}
+
+.logo img {
+  width: 40px;
+  height: 40px;
+}
+
+/* ==== MENU ==== */
+.navbar-menu {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+.navbar-menu a {
+  text-decoration: none;
+  color: #F1B4BB;
+  font-weight: 500;
+  font-size: 1rem;
+  margin-top: 20px;
+}
+
+/* ==== TOMBOL START ==== */
+.start-now {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.btn-primary {
+  font-family: 'Orbitron', sans-serif;
+  background-color: #FFCBCB;
+  color: #102C57;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 40px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.3s ease;
+  font-size: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:hover {
+  background-color: #FF90BB;
+  color: #FFC1DA;
+}
+
+/* ==== RESPONSIVE BREAKPOINT ==== */
+@media (max-width: 800px) {
+  .navbar {
+    flex-direction: column ;
+    align-items: flex-start;
+    position: relative;
+    padding-bottom: 60 px;
+  }
+
+  .navbar-menu {
+    width: 100%;
+    display: flex;
+    flex: 10;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+
+  .start-now {
+    position: absolute; /* agar bisa pindah */
+    margin-bottom: 0.5rem;        /* jarak dari bawah */
+    right: 20px;         /* PINDAH KE KANAN */
+  }
+}
