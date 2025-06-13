@@ -1,29 +1,37 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const bodyParser = require('body-parser');
 const path = require('path');
 const session = require('express-session');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const dotenv = require('dotenv');
+
 const User = require('./models/User');
+const LoginLog = require('./models/loginLog');
+const MovementLog = require('./models/MovementLog');
+const apiRoutes = require('./routes/api');
+
+dotenv.config(); // 🔑 Load .env
 
 const app = express();
 
-// Middleware static untuk landing dan login (boleh diakses publik)
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Middleware parsing body dan session
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+// ✅ Middleware
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(session({
   secret: 'rahasia_arm_robot',
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   cookie: { secure: false }
 }));
 
-// Koneksi ke MongoDB
-mongoose.connect('mongodb://localhost:27017/armrobot', {
+// ✅ Static files
+app.use(express.static(path.join(__dirname, 'public')));
+
+// ✅ MongoDB Atlas Connection
+mongoose.connect('mongodb+srv://garneta:garneta@cluster0.47428h6.mongodb.net/armrobot?retryWrites=true&w=majority&appName=Cluster0', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => {
@@ -32,7 +40,7 @@ mongoose.connect('mongodb://localhost:27017/armrobot', {
   console.error("❌ Koneksi MongoDB gagal:", err.message);
 });
 
-// 🔒 Middleware untuk proteksi halaman yang butuh login
+// 🔒 Middleware proteksi
 function requireLogin(req, res, next) {
   if (!req.session.userId) {
     return res.redirect('/login');
@@ -40,70 +48,93 @@ function requireLogin(req, res, next) {
   next();
 }
 
-// ✅ Landing Page
+// ✅ Routing halaman
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'landing.html'));
 });
 
-// ✅ Halaman Login
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// ✅ Proses Login
 app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  const user = await User.findOne({ username });
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
 
-  if (!user || !(await bcrypt.compare(password, user.password))) {
-    return res.status(401).json({ message: "Username atau password salah" });
+    if (!user || user.password !== password) {
+      return res.status(401).json({ message: "Username atau password salah" });
+    }
+
+    req.session.userId = user._id;
+    req.session.username = user.username;
+
+    const loginLog = new LoginLog({
+      userId: user._id,
+      username: user.username,
+    });
+    await loginLog.save();
+
+    res.status(200).json({ message: "Login berhasil" });
+  } catch (err) {
+    console.error("Login error:", err.message);
+    res.status(500).json({ message: "Terjadi kesalahan saat login" });
   }
-
-  req.session.userId = user._id;
-  req.session.username = user.username;
-  res.status(200).json({ message: "Login berhasil" });
 });
 
-// ✅ Halaman About (bebas diakses)
 app.get('/about.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'about.html'));
 });
 
-// ✅ Halaman Dashboard (diproteksi)
 app.get('/dashboard', requireLogin, (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'dashboard.html'));
 });
-
-// 🔒 Blok akses langsung ke /dashboard.html
 app.get('/dashboard.html', (req, res) => {
   return res.redirect('/dashboard');
 });
 
-// ✅ Halaman Controller (diproteksi)
 app.get('/controller', requireLogin, (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'controller.html'));
 });
-
-// 🔒 Blok akses langsung ke /controller.html
 app.get('/controller.html', (req, res) => {
   return res.redirect('/controller');
 });
 
-// ✅ Logout
 app.post('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) return res.status(500).send("Error logging out");
-    res.redirect('/'); // akan mengarah ke landing.html lewat route '/'
+    res.redirect('/');
   });
 });
 
-// 🔁 Fallback 404 untuk route tidak ditemukan
-app.use((req, res, next) => {
+// ✅ Endpoint API: Simpan Log Pergerakan
+app.post('/api/movement-log', async (req, res) => {
+  try {
+    const { message } = req.body;
+    if (!message) {
+      return res.status(400).json({ error: 'Pesan log kosong' });
+    }
+
+    const log = new MovementLog({ message });
+    await log.save();
+
+    res.status(201).json({ message: 'Log berhasil disimpan' });
+  } catch (err) {
+    console.error("❌ Gagal menyimpan log:", err.message);
+    res.status(500).json({ error: 'Gagal menyimpan log' });
+  }
+});
+
+// ✅ Routing API
+app.use('/api', apiRoutes); // <- ini penting agar /api/movement-log dan lainnya aktif
+
+// 🔁 Fallback
+app.use((req, res) => {
   res.status(404).send("Halaman tidak ditemukan");
 });
 
 // ✅ Jalankan Server
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
 });

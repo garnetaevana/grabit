@@ -11,6 +11,9 @@
     body {
       font-family: 'Orbitron', sans-serif;
     }
+    input[type=range]::-webkit-slider-thumb {
+      background: #1679AB;
+    }
   </style>
 </head>
 <body class="bg-[#FFCBCB] text-gray-800">
@@ -43,41 +46,29 @@
   <!-- MAIN CONTENT -->
   <main class="container mx-auto px-4 py-10">
     <section class="flex flex-wrap justify-center gap-8">
-      <!-- Kontrol Servo -->
+      <!-- Kontrol Servo dengan Slider -->
       <div class="bg-white rounded-xl shadow-md p-6 w-72 text-center border-4 border-[#1679AB]">
         <label class="text-xl mb-2 text-[#102C57]">Rotation</label>
         <div class="text-2xl font-bold text-[#1679AB] mb-4" id="servo1Value">0</div>
-        <div class="space-x-2">
-          <button onclick="changeServo(1, -15)" class="bg-[#FFB1B1] hover:bg-[#FFCBCB] text-white px-4 py-2 rounded-md">-15</button>
-          <button onclick="changeServo(1, 15)" class="bg-[#FFB1B1] hover:bg-[#FFCBCB] text-white px-4 py-2 rounded-md">+15</button>
-        </div>
+        <input type="range" id="servo1Slider" min="0" max="180" value="0" class="w-full" oninput="updateServo(1, this.value)">
       </div>
 
       <div class="bg-white rounded-xl shadow-md p-6 w-72 text-center border-4 border-[#1679AB]">
         <label class="text-xl mb-2 text-[#102C57]">Gripper</label>
         <div class="text-2xl font-bold text-[#1679AB] mb-4" id="servo2Value">0</div>
-        <div class="space-x-2">
-          <button onclick="changeServo(2, -15)" class="bg-[#FFB1B1] hover:bg-[#FFCBCB] text-white px-4 py-2 rounded-md">-5</button>
-          <button onclick="changeServo(2, 15)" class="bg-[#FFB1B1] hover:bg-[#FFCBCB] text-white px-4 py-2 rounded-md">+5</button>
-        </div>
+        <input type="range" id="servo2Slider" min="0" max="40" value="0" class="w-full" oninput="updateServo(2, this.value)">
       </div>
 
       <div class="bg-white rounded-xl shadow-md p-6 w-72 text-center border-4 border-[#1679AB]">
         <label class="text-xl mb-2 text-[#102C57]">Up - Down</label>
         <div class="text-2xl font-bold text-[#1679AB] mb-4" id="servo3Value">50</div>
-        <div class="space-x-2">
-          <button onclick="changeServo(3, -15)" class="bg-[#FFB1B1] hover:bg-[#FFCBCB] text-white px-4 py-2 rounded-md">-15</button>
-          <button onclick="changeServo(3, 15)" class="bg-[#FFB1B1] hover:bg-[#FFCBCB] text-white px-4 py-2 rounded-md">+15</button>
-        </div>
+        <input type="range" id="servo3Slider" min="30" max="150" value="50" class="w-full" oninput="updateServo(3, this.value)">
       </div>
 
       <div class="bg-white rounded-xl shadow-md p-6 w-72 text-center border-4 border-[#1679AB]">
         <label class="text-xl mb-2 text-[#102C57]">Forward - Back</label>
         <div class="text-2xl font-bold text-[#1679AB] mb-4" id="servo4Value">40</div>
-        <div class="space-x-2">
-          <button onclick="changeServo(4, -15)" class="bg-[#FFB1B1] hover:bg-[#FFCBCB] text-white px-4 py-2 rounded-md">-15</button>
-          <button onclick="changeServo(4, 15)" class="bg-[#FFB1B1] hover:bg-[#FFCBCB] text-white px-4 py-2 rounded-md">+15</button>
-        </div>
+        <input type="range" id="servo4Slider" min="40" max="180" value="40" class="w-full" oninput="updateServo(4, this.value)">
       </div>
     </section>
 
@@ -105,10 +96,13 @@
     </section>
   </main>
 
+  <!-- Footer -->
+  <footer class="bg-[#102C57] text-[#ffff] text-center py-4 mt-8">
+    <p>&copy; 2025 Arm Robot Controller</p>
+  </footer>
+
   <script>
-    var s1 = 0, s2 = 40, s3 = 50, s4 = 40;
-    const servoMin = [0, 0, 30, 40];
-    const servoMax = [180, 40, 150, 180];
+    var s1 = 0, s2 = 0, s3 = 50, s4 = 40;
 
     function sendData() {
       var xhttp = new XMLHttpRequest();
@@ -117,35 +111,12 @@
       xhttp.send();
     }
 
-    function changeServo(servoNum, increment) {
-      let currentValue, newValue, displayElement;
-      switch (servoNum) {
-        case 1:
-          currentValue = s1;
-          newValue = Math.max(servoMin[0], Math.min(servoMax[0], currentValue + increment));
-          s1 = newValue;
-          displayElement = document.getElementById("servo1Value");
-          break;
-        case 2:
-          currentValue = s2;
-          newValue = Math.max(servoMin[1], Math.min(servoMax[1], currentValue + increment));
-          s2 = newValue;
-          displayElement = document.getElementById("servo2Value");
-          break;
-        case 3:
-          currentValue = s3;
-          newValue = Math.max(servoMin[2], Math.min(servoMax[2], currentValue + increment));
-          s3 = newValue;
-          displayElement = document.getElementById("servo3Value");
-          break;
-        case 4:
-          currentValue = s4;
-          newValue = Math.max(servoMin[3], Math.min(servoMax[3], currentValue + increment));
-          s4 = newValue;
-          displayElement = document.getElementById("servo4Value");
-          break;
-      }
-      displayElement.innerText = newValue;
+    function updateServo(servoNum, value) {
+      value = parseInt(value);
+      if (servoNum === 1) { s1 = value; document.getElementById("servo1Value").innerText = value; }
+      if (servoNum === 2) { s2 = value; document.getElementById("servo2Value").innerText = value; }
+      if (servoNum === 3) { s3 = value; document.getElementById("servo3Value").innerText = value; }
+      if (servoNum === 4) { s4 = value; document.getElementById("servo4Value").innerText = value; }
       sendData();
     }
 

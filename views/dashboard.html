@@ -5,7 +5,9 @@
   <title>Dashboard - Arm Robot</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+  
     body {
       margin: 0;
       font-family: 'Orbitron', sans-serif;
@@ -17,22 +19,8 @@
       padding: 2rem;
     }
 
-    h1 {
+    h1, h2 {
       color: #00bcd4;
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-
-    .monitor {
-      background-color: #FFCBCB;
-      padding: 1rem;
-      border-radius: 8px;
-      height: 300px;
-      overflow-y: auto;
-      font-family: monospace;
-      font-size: 14px;
-      white-space: pre-line;
-      color: #000;
     }
 
     .status-box {
@@ -60,6 +48,58 @@
       font-size: 1.5rem;
       margin-top: 0.5rem;
     }
+
+    .chart-container {
+      margin-top: 3rem;
+      background-color: #FFCBCB;
+      padding: 1rem;
+      border-radius: 8px;
+    }
+
+    .led-indicator {
+      font-weight: bold;
+    }
+
+    .led-red { color: red; }
+    .led-yellow { color: yellow; }
+    .led-green { color: limegreen; }
+    
+    .log-box {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 20px;
+      border: 1px solid #fff;
+      border-radius: 10px;
+      background-color: #444;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: monospace;
+    }
+    thead {
+      position: sticky;
+      top: 0;
+      background-color: #FFB1B1;
+      z-index: 1;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #444;
+    }
+    .led-merah {
+      color: #ff4c4c;
+      font-weight: bold;
+    }
+    .led-kuning {
+      color: #ffcc00;
+      font-weight: bold;
+    }
+    .led-hijau {
+      color: #4caf50;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -86,9 +126,22 @@
 
   <div class="container">
     <h1>Live Movement Logs</h1>
-    <div class="monitor" id="logDisplay">
-      <!-- Data log akan dimasukkan via JS -->
+    <!-- Kotak scrollable tabel -->
+    <div class="log-box">
+      <table>
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Servo Action</th>
+            <th>Distance</th>
+            <th>System Status</th>
+            <th>LED Status</th>
+          </tr>
+        </thead>
+        <tbody id="logTableBody"></tbody>
+      </table>
     </div>
+
 
     <div class="status-box">
       <div class="status-card">
@@ -103,32 +156,100 @@
         <h3>Robot Status</h3>
         <p id="system-status">Idle</p>
       </div>
+      <div class="status-card">
+        <h3>LED Status</h3>
+        <p id="led-status" class="led-indicator">-</p>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <h2>Ultrasonic Sensor History</h2>
+      <canvas id="distanceChart"></canvas>
     </div>
   </div>
 
   <script>
     const logDisplay = document.getElementById('logDisplay');
+    const distanceData = [];
+    const labelData = [];
 
-    function addLog(message) {
-      const timestamp = new Date().toLocaleTimeString();
-      logDisplay.innerText += `[${timestamp}] ${message}\n`;
-      logDisplay.scrollTop = logDisplay.scrollHeight;
+    const ctx = document.getElementById('distanceChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labelData,
+        datasets: [{
+          label: 'Distance (cm)',
+          data: distanceData,
+          borderColor: '#00bcd4',
+          backgroundColor: 'rgba(0, 188, 212, 0.2)',
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 150
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: '#fff'
+            }
+          }
+        }
+      }
+    });
+
+    function getLedColor(distance) {
+      if (distance <= 20) return { color: 'Merah', class: 'led-red' };
+      if (distance <= 50) return { color: 'Kuning', class: 'led-yellow' };
+      return { color: 'Hijau', class: 'led-green' };
     }
 
-    setInterval(() => {
-      const moves = ["Right", "Left", "Forward", "Backward", "Idle"];
-      const move = moves[Math.floor(Math.random() * moves.length)];
-      document.getElementById("servo-action").textContent = move;
+    function addLog(timestamp, move, distance, status, ledColor) {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${timestamp}</td>
+        <td>${move}</td>
+        <td>${distance} cm</td>
+        <td>${status}</td>
+        <td class="${ledColor.class}">${ledColor.color}</td>
+      `;
+      document.getElementById("logTableBody").prepend(row);
 
-      const distance = (Math.random() * 100).toFixed(2);
-      document.getElementById("ultrasonic").textContent = `${distance} cm`;
+      // Update chart
+      if (labelData.length > 20) {
+        labelData.shift();
+        distanceData.shift();
+      }
+      labelData.push(timestamp);
+      distanceData.push(distance);
+      chart.update();
 
-      const systemOn = Math.random() > 0.3;
-      const systemStatus = systemOn ? "Online" : "Offline";
-      document.getElementById("system-status").textContent = systemStatus;
+      // Update LED indicator
+      const ledStatus = document.getElementById("led-status");
+      ledStatus.textContent = ledColor.color;
+      ledStatus.className = `led-indicator ${ledColor.class}`;
 
-      addLog(`Servo moved ${move}, Distance: ${distance}cm, Status: ${systemStatus}`);
-    }, 4000);
+      // Kirim log ke server
+      fetch('/api/log', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          timestamp: new Date().toISOString(),
+          action: move,
+          distance: distance,
+          systemStatus: status,
+          led: ledColor.color
+        })
+      });
+    }
   </script>
 </body>
 </html>
