@@ -243,17 +243,15 @@
         },
 
         body: JSON.stringify({
-          message:{
             timestamp: new Date().toISOString(),
             action: move,
             distance: distance,
             systemStatus: status,
             led: ledColor.color
-          }
         })
       });
     }
-    
+    //Pengambilan 
     setInterval(async () => {
       const response = await fetch('/api/movement-log');
       const logs = await response.json();
@@ -262,6 +260,7 @@
       document.getElementById("logTableBody").innerHTML = "";
 
       logs.forEach(log => {
+        const data = log.message; // ambil dari field message
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${new Date(log.timestamp).toLocaleTimeString()}</td>
@@ -274,6 +273,34 @@
       });
     }, 4000);
 
+    async function fetchLatestSensor() {
+      const response = await fetch('/api/robot/latest-sensor');
+      const data = await response.json();
+
+      // Update tampilan status box
+      document.getElementById('ultrasonic').textContent = `${data.distance} cm`;
+      document.getElementById('servo-action').textContent = "Auto";  // contoh, nanti bisa ambil action asli
+      document.getElementById('system-status').textContent = "Running";
+
+      // LED Status
+      const ledStatus = document.getElementById("led-status");
+      if (data.ledRed) {
+        ledStatus.textContent = 'Merah';
+        ledStatus.className = 'led-indicator led-merah';
+      } else if (data.ledYellow) {
+        ledStatus.textContent = 'Kuning';
+        ledStatus.className = 'led-indicator led-kuning';
+      } else if (data.ledGreen) {
+        ledStatus.textContent = 'Hijau';
+        ledStatus.className = 'led-indicator led-hijau';
+      } else {
+        ledStatus.textContent = '-';
+        ledStatus.className = 'led-indicator';
+      }
+    }
+
+    // Panggil setiap detik
+    setInterval(fetchLatestSensor, 1000);
 
   </script>
 </body>

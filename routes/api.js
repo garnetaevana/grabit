@@ -7,19 +7,20 @@ const mongoose = require('mongoose');
 const Sensor = mongoose.model('Sensor', new mongoose.Schema({}, { strict: false }));
 const Perintah = mongoose.model('Perintah', new mongoose.Schema({
   deviceId: String,
-  command: String,
+  command: {
+    s1: Number,
+    s2: Number,
+    s3: Number,
+    s4: Number
+  },
   waktu: { type: Date, default: Date.now }
 }));
 
 // ✅ Simpan log pergerakan dari dashboard
 router.post('/movement-log', async (req, res) => {
   try {
-    const { message } = req.body;
-    if (!message) {
-      return res.status(400).json({ error: 'Pesan log kosong' });
-    }
-
-    const log = new MovementLog({ message });
+    const { timestamp, action, distance, systemStatus, led } = req.body;
+    const log = new MovementLog({ timestamp, action, distance, systemStatus, led });
     await log.save();
 
     res.status(201).json({ message: 'Log berhasil disimpan' });
