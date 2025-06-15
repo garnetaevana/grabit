@@ -1,7 +1,7 @@
 // routes/robot.js
-const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 
 // untuk kontrol robot
 router.post('/command', (req, res) => {

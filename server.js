@@ -93,6 +93,7 @@ app.get('/dashboard.html', (req, res) => {
   return res.redirect('/dashboard');
 });
 
+
 app.get('/controller', requireLogin, (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'controller.html'));
 });

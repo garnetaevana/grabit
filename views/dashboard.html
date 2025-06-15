@@ -250,6 +250,25 @@
         })
       });
     }
+
+    // Simulasi data
+    setInterval(() => {
+      const moves = ["Right", "Left", "Forward", "Backward", "Idle"];
+      const move = moves[Math.floor(Math.random() * moves.length)];
+      document.getElementById("servo-action").textContent = move;
+
+      const distance = parseFloat((Math.random() * 100).toFixed(2));
+      document.getElementById("ultrasonic").textContent = `${distance} cm`;
+
+      const systemOn = Math.random() > 0.3;
+      const systemStatus = systemOn ? "Online" : "Offline";
+      document.getElementById("system-status").textContent = systemStatus;
+
+      const ledColor = getLedColor(distance);
+      const timestamp = new Date().toLocaleTimeString();
+
+      addLog(timestamp, move, distance, systemStatus, ledColor);;
+    }, 4000);
   </script>
 </body>
 </html>
