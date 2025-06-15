@@ -88,5 +88,22 @@ router.post('/robot/send-command', async (req, res) => {
   }
 });
 
+// ✅ Ambil sensor terakhir untuk controller (realtime polling)
+router.get('/robot/latest-sensor', async (req, res) => {
+  try {
+    const sensor = await Sensor.findOne().sort({ waktu: -1 });
+
+    // Pastikan format JSON sesuai ekspektasi frontend-mu
+    res.json({
+      distance: sensor?.value?.distance ?? 0,
+      ledRed: sensor?.value?.ledRed ?? false,
+      ledYellow: sensor?.value?.ledYellow ?? false,
+      ledGreen: sensor?.value?.ledGreen ?? false
+    });
+  } catch (err) {
+    res.status(500).send('Error retrieving latest sensor data');
+  }
+});
+
 
 module.exports = router;

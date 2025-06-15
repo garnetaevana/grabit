@@ -236,39 +236,45 @@
       ledStatus.className = `led-indicator ${ledColor.class}`;
 
       // Kirim log ke server
-      fetch('/api/log', {
+      fetch('/api/movement-log', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
+
         body: JSON.stringify({
-          timestamp: new Date().toISOString(),
-          action: move,
-          distance: distance,
-          systemStatus: status,
-          led: ledColor.color
+          message:{
+            timestamp: new Date().toISOString(),
+            action: move,
+            distance: distance,
+            systemStatus: status,
+            led: ledColor.color
+          }
         })
       });
     }
+    
+    setInterval(async () => {
+      const response = await fetch('/api/movement-log');
+      const logs = await response.json();
+      
+      // Kosongkan tabel dulu
+      document.getElementById("logTableBody").innerHTML = "";
 
-    // Simulasi data
-    setInterval(() => {
-      const moves = ["Right", "Left", "Forward", "Backward", "Idle"];
-      const move = moves[Math.floor(Math.random() * moves.length)];
-      document.getElementById("servo-action").textContent = move;
-
-      const distance = parseFloat((Math.random() * 100).toFixed(2));
-      document.getElementById("ultrasonic").textContent = `${distance} cm`;
-
-      const systemOn = Math.random() > 0.3;
-      const systemStatus = systemOn ? "Online" : "Offline";
-      document.getElementById("system-status").textContent = systemStatus;
-
-      const ledColor = getLedColor(distance);
-      const timestamp = new Date().toLocaleTimeString();
-
-      addLog(timestamp, move, distance, systemStatus, ledColor);;
+      logs.forEach(log => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${new Date(log.timestamp).toLocaleTimeString()}</td>
+          <td>${log.action}</td>
+          <td>${log.distance} cm</td>
+          <td>${log.systemStatus}</td>
+          <td>${log.led}</td>
+        `;
+        document.getElementById("logTableBody").append(row);
+      });
     }, 4000);
+
+
   </script>
 </body>
 </html>
