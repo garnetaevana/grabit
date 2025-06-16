@@ -61,8 +61,8 @@
 
       <div class="bg-white rounded-xl shadow-md p-6 w-72 text-center border-4 border-[#1679AB]">
         <label class="text-xl mb-2 text-[#102C57]">Up - Down</label>
-        <div class="text-2xl font-bold text-[#1679AB] mb-4" id="servo3Value">120</div>
-        <input type="range" id="servo3Slider" min="0" max="180" value="120" class="w-full" oninput="updateServo(3, this.value)">
+        <div class="text-2xl font-bold text-[#1679AB] mb-4" id="servo3Value">55</div>
+        <input type="range" id="servo3Slider" min="0" max="180" value="55" class="w-full" oninput="updateServo(3, this.value)">
       </div>
 
       <div class="bg-white rounded-xl shadow-md p-6 w-72 text-center border-4 border-[#1679AB]">
@@ -145,7 +145,7 @@
               action: `S1:${s1} S2:${s2} S3:${s3} S4:${s4}`,
               distance: 0,
               systemStatus: "Running",
-              led: "-"
+              led: "Merah"
             })
           });
         })

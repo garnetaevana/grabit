@@ -243,11 +243,11 @@
         },
 
         body: JSON.stringify({
-            timestamp: new Date().toISOString(),
-            action: move,
-            distance: distance,
-            systemStatus: status,
-            led: ledColor.color
+          timestamp: new Date().toISOString(),
+          action: `S1:${s1} S2:${s2} S3:${s3} S4:${s4}`,
+          distance: 10,
+          systemStatus: "Running",
+          led: "Merah"
         })
       });
     }

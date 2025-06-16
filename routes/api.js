@@ -27,12 +27,13 @@ const Trigger = mongoose.model('Trigger', new mongoose.Schema({
 router.post('/movement-log', async (req, res) => {
   try {
     const { timestamp, action, distance, systemStatus, led } = req.body;
-    const log = new MovementLog({ timestamp: newDate(), action, distance, systemStatus, led });
+    if (!action) {
+      return res.status(400).json({ error: 'Action kosong' });
+    }
+    const log = new MovementLog({ timestamp, action, distance, systemStatus, led });
     await log.save();
-
     res.status(201).json({ message: 'Log berhasil disimpan' });
   } catch (err) {
-    console.error("❌ Gagal menyimpan log:", err.message);
     res.status(500).json({ error: 'Gagal menyimpan log' });
   }
 });
