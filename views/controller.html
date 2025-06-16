@@ -175,18 +175,20 @@
             const ledYellow = document.getElementById("led-yellow");
             const ledGreen = document.getElementById("led-green");
 
-            // Reset all LEDs
-            ledRed.className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
-            ledYellow.className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
-            ledGreen.className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+            // Reset semua
+            ledRed.className = "inline-block w-6 h-6 rounded-full bg-gray-400 border border-gray-700";
+            ledYellow.className = "inline-block w-6 h-6 rounded-full bg-gray-400 border border-gray-700";
+            ledGreen.className = "inline-block w-6 h-6 rounded-full bg-gray-400 border border-gray-700";
 
-            // Set active LED
+            // Aktifkan sesuai status
             if (data.ledRed) {
-              ledRed.className = "bg-red-500 w-6 h-6 rounded-full border border-gray-700";
-            } else if (data.ledYellow) {
-              ledYellow.className = "bg-yellow-400 w-6 h-6 rounded-full border border-gray-700";
-            } else if (data.ledGreen) {
-              ledGreen.className = "bg-green-500 w-6 h-6 rounded-full border border-gray-700";
+              ledRed.className = "inline-block w-6 h-6 rounded-full bg-red-500 border border-gray-700";
+            }
+            if (data.ledYellow) {
+              ledYellow.className = "inline-block w-6 h-6 rounded-full bg-yellow-400 border border-gray-700";
+            }
+            if (data.ledGreen) {
+              ledGreen.className = "inline-block w-6 h-6 rounded-full bg-green-500 border border-gray-700";
             }
           })
           .catch(err => console.error('Error fetching sensor data:', err));
