@@ -260,7 +260,6 @@
       document.getElementById("logTableBody").innerHTML = "";
 
       logs.forEach(log => {
-        const data = log.message; // ambil dari field message
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${new Date(log.timestamp).toLocaleTimeString()}</td>
