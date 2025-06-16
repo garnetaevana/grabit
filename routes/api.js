@@ -20,7 +20,7 @@ const Perintah = mongoose.model('Perintah', new mongoose.Schema({
 router.post('/movement-log', async (req, res) => {
   try {
     const { timestamp, action, distance, systemStatus, led } = req.body;
-    const log = new MovementLog({ timestamp, action, distance, systemStatus, led });
+    const log = new MovementLog({ timestamp: newDate(), action, distance, systemStatus, led });
     await log.save();
 
     res.status(201).json({ message: 'Log berhasil disimpan' });
@@ -96,6 +96,8 @@ router.get('/robot/latest-sensor', async (req, res) => {
 
     // Pastikan format JSON sesuai ekspektasi frontend-mu
     res.json({
+      action: sensor?.value?.action ?? "Idle",
+      systemStatus: sensor?.value?.systemStatus ?? "Offline",
       distance: sensor?.value?.distance ?? 0,
       ledRed: sensor?.value?.ledRed ?? false,
       ledYellow: sensor?.value?.ledYellow ?? false,
