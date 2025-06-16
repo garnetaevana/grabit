@@ -109,31 +109,50 @@
       var s4 = parseInt(document.getElementById("servo4Slider").value);
 
       function sendData() {
+        const command = { s1, s2, s3, s4 };
+        console.log('Sending command:', command);
+
         fetch('/api/robot/send-command', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ command: { s1, s2, s3, s4 } })  // kirim posisi servo
+          body: JSON.stringify({ command })
         })
         .then(res => res.json())
         .then(data => {
-          console.log(data);
-        // Kirim movement log setelah mengirim command servo
-          fetch('/api/movement-log', {
+          console.log('Command sent:', data);
+          const commandId = data.commandId;
+          // Cek status trigger setiap 500ms
+          const checkTrigger = setInterval(() => {
+            fetch(`/api/robot/trigger-status/${commandId}`)
+              .then(res => res.json())
+              .then(triggerData => {
+                if (triggerData.status === 'executed') {
+                  clearInterval(checkTrigger);
+                  console.log('Command executed successfully');
+                }
+              })
+              .catch(err => {
+                console.error('Error checking trigger:', err);
+                clearInterval(checkTrigger);
+              });
+          }, 500);
+          // Kirim movement log
+          return fetch('/api/movement-log', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               timestamp: new Date().toISOString(),
               action: `S1:${s1} S2:${s2} S3:${s3} S4:${s4}`,
-              distance: 0, // bisa isi nilai real jika ada sensor ultrasonic
+              distance: 0,
               systemStatus: "Running",
-              led: "-"  // sesuaikan led status
+              led: "-"
             })
           });
-          
         })
-        .catch(err => console.error(err));
+        .then(res => res.json())
+        .then(data => console.log('Log sent:', data))
+        .catch(err => console.error('Error:', err));
       }
-
 
       function updateServo(servoNum, value) {
         value = parseInt(value);
@@ -148,32 +167,33 @@
         fetch('/api/robot/latest-sensor')
           .then(response => response.json())
           .then(data => {
-            document.getElementById("distanceValueHTML").innerText = data.distance;
-            // Normalisasi data, samakan dengan dashboard logika
+            // Update distance
+            document.getElementById("distanceValueHTML").innerText = data.distance || 0;
+
+            // Update LED status
+            const ledRed = document.getElementById("led-red");
+            const ledYellow = document.getElementById("led-yellow");
+            const ledGreen = document.getElementById("led-green");
+
+            // Reset all LEDs
+            ledRed.className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+            ledYellow.className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+            ledGreen.className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+
+            // Set active LED
             if (data.ledRed) {
-              document.getElementById("led-red").className = "bg-red-500 w-6 h-6 rounded-full border border-gray-700";
-              document.getElementById("led-yellow").className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
-              document.getElementById("led-green").className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+              ledRed.className = "bg-red-500 w-6 h-6 rounded-full border border-gray-700";
             } else if (data.ledYellow) {
-              document.getElementById("led-red").className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
-              document.getElementById("led-yellow").className = "bg-yellow-400 w-6 h-6 rounded-full border border-gray-700";
-              document.getElementById("led-green").className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+              ledYellow.className = "bg-yellow-400 w-6 h-6 rounded-full border border-gray-700";
             } else if (data.ledGreen) {
-              document.getElementById("led-red").className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
-              document.getElementById("led-yellow").className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
-              document.getElementById("led-green").className = "bg-green-500 w-6 h-6 rounded-full border border-gray-700";
-            } else {
-              // Jika ketiganya false/null
-                document.getElementById("led-red").className =  "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
-                document.getElementById("led-yellow").className =  "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
-                document.getElementById("led-green").className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+              ledGreen.className = "bg-green-500 w-6 h-6 rounded-full border border-gray-700";
             }
           })
-          .catch(err => console.error('Error fetching sensor data', err));
+          .catch(err => console.error('Error fetching sensor data:', err));
       }
 
       // Update sensor status every second
-      sendData(); // langsung kirim posisi awal
+      sendData(); // Send initial position
       setInterval(updateSensorStatus, 1000);
       updateSensorStatus();
 

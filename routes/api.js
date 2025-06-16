@@ -16,6 +16,13 @@ const Perintah = mongoose.model('Perintah', new mongoose.Schema({
   waktu: { type: Date, default: Date.now }
 }));
 
+// ✅ Simpan trigger status
+const Trigger = mongoose.model('Trigger', new mongoose.Schema({
+  commandId: String,
+  status: String,
+  timestamp: { type: Date, default: Date.now }
+}));
+
 // ✅ Simpan log pergerakan dari dashboard
 router.post('/movement-log', async (req, res) => {
   try {
@@ -63,13 +70,16 @@ router.get('/robot/latest-command', async (req, res) => {
   try {
     const perintah = await Perintah.findOne().sort({ waktu: -1 });
     if (perintah) {
-      res.send(perintah.command);
+      res.json({ 
+        command: perintah.command,
+        commandId: perintah.commandId 
+      });
     } else {
-      res.send("");
+      res.json({ command: null, commandId: null });
     }
   } catch (err) {
     console.error("❌ Gagal ambil perintah:", err.message);
-    res.status(500).send('Gagal ambil perintah');
+    res.status(500).json({ error: 'Gagal ambil perintah' });
   }
 });
 
@@ -80,9 +90,17 @@ router.post('/robot/send-command', async (req, res) => {
       return res.status(400).json({ error: 'Perintah kosong' });
     }
 
-    const data = new Perintah({ command, waktu: new Date() });
+    const commandId = new mongoose.Types.ObjectId().toString();
+    const data = new Perintah({ 
+      commandId,
+      command, 
+      waktu: new Date() 
+    });
     await data.save();
-    res.json({ message: 'Perintah berhasil disimpan' });
+    res.json({ 
+      message: 'Perintah berhasil disimpan',
+      commandId: commandId 
+    });
   } catch (err) {
     console.error("❌ Gagal simpan perintah:", err.message);
     res.status(500).send('Gagal simpan perintah');
@@ -108,5 +126,17 @@ router.get('/robot/latest-sensor', async (req, res) => {
   }
 });
 
+// ✅ Endpoint untuk trigger
+router.post('/robot/trigger', async (req, res) => {
+  try {
+    const { commandId, status } = req.body;
+    const trigger = new Trigger({ commandId, status });
+    await trigger.save();
+    res.json({ message: 'Trigger received' });
+  } catch (err) {
+    console.error("❌ Gagal simpan trigger:", err.message);
+    res.status(500).json({ error: 'Gagal simpan trigger' });
+  }
+});
 
 module.exports = router;

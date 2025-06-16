@@ -251,7 +251,7 @@
         })
       });
     }
-    //Pengambilan 
+    //Pengambilan log movement
     setInterval(async () => {
       try {
         const response = await fetch('/api/movement-log');
@@ -260,58 +260,73 @@
         // Kosongkan tabel dulu
         document.getElementById("logTableBody").innerHTML = "";
 
+        // Update chart data
+        distanceData.length = 0;
+        labelData.length = 0;
+
         logs.forEach(log => {
           const timestamp = log.timestamp ? new Date(log.timestamp).toLocaleString() : "-";
           const action = log.action || "-";
-          const distance = (log.distance !== undefined) ? `${log.distance} cm` : "-";
+          const distance = log.distance || 0;
           const systemStatus = log.systemStatus || "-";
           const led = log.led || "-";
 
+          // Add to table
           const row = document.createElement('tr');
           row.innerHTML = `
             <td>${timestamp}</td>
             <td>${action}</td>
-            <td>${distance}</td>
+            <td>${distance} cm</td>
             <td>${systemStatus}</td>
-            <td>${led}</td>
+            <td class="led-${led.toLowerCase()}">${led}</td>
           `;
           document.getElementById("logTableBody").append(row);
+
+          // Add to chart
+          if (labelData.length < 20) {
+            labelData.push(timestamp);
+            distanceData.push(distance);
+          }
         });
+
+        // Update chart
+        chart.update();
 
       } catch (err) {
         console.error("Error loading logs: ", err);
       }
-    }, 4000);
+    }, 2000);  // Update every 2 seconds
 
-    async function fetchLatestSensor() {
-      const response = await fetch('/api/robot/latest-sensor');
-      const data = await response.json();
+    // Update sensor status
+    setInterval(async () => {
+      try {
+        const response = await fetch('/api/robot/latest-sensor');
+        const data = await response.json();
 
-      // Update tampilan status box
-      document.getElementById('ultrasonic').textContent = `${data.distance} cm`;
-      document.getElementById('servo-action').textContent = data.action || "-";
-      document.getElementById('system-status').textContent = data.systemStatus || "-";
+        // Update status cards
+        document.getElementById('ultrasonic').textContent = `${data.distance} cm`;
+        document.getElementById('servo-action').textContent = data.action || "-";
+        document.getElementById('system-status').textContent = data.systemStatus || "-";
 
-
-      // LED Status
-      const ledStatus = document.getElementById("led-status");
-      if (data.ledRed) {
-        ledStatus.textContent = 'Merah';
-        ledStatus.className = 'led-indicator led-merah';
-      } else if (data.ledYellow) {
-        ledStatus.textContent = 'Kuning';
-        ledStatus.className = 'led-indicator led-kuning';
-      } else if (data.ledGreen) {
-        ledStatus.textContent = 'Hijau';
-        ledStatus.className = 'led-indicator led-hijau';
-      } else {
-        ledStatus.textContent = '-';
-        ledStatus.className = 'led-indicator';
+        // Update LED status
+        const ledStatus = document.getElementById("led-status");
+        if (data.ledRed) {
+          ledStatus.textContent = 'Merah';
+          ledStatus.className = 'led-indicator led-merah';
+        } else if (data.ledYellow) {
+          ledStatus.textContent = 'Kuning';
+          ledStatus.className = 'led-indicator led-kuning';
+        } else if (data.ledGreen) {
+          ledStatus.textContent = 'Hijau';
+          ledStatus.className = 'led-indicator led-hijau';
+        } else {
+          ledStatus.textContent = '-';
+          ledStatus.className = 'led-indicator';
+        }
+      } catch (err) {
+        console.error("Error fetching sensor data:", err);
       }
-    }
-
-    // Panggil setiap detik
-    setInterval(fetchLatestSensor, 1000);
+    }, 1000);
 
   </script>
 </body>
