@@ -43,25 +43,22 @@ router.get('/movement-log', async (req, res) => {
     const logs = await MovementLog.find().sort({ timestamp: -1 }).limit(100);
     res.json(logs);
   } catch (err) {
-    console.error("❌ Gagal mengambil log:", err.message);
     res.status(500).json({ error: 'Gagal mengambil log' });
   }
 });
 
 // ✅ Terima data sensor
-router.post('/robot/sensor-data', async (req, res) => {
+router.post('/movement-log', async (req, res) => {
   try {
-    const { sensor, value } = req.body;
-    if (!sensor || value === undefined) {
-      return res.status(400).json({ error: 'Data sensor tidak lengkap' });
+    const { timestamp, action, distance, systemStatus, led } = req.body;
+    if (!action) {
+      return res.status(400).json({ error: 'Action kosong' });
     }
-
-    const data = new Sensor({ sensor, value, waktu: new Date() });
-    await data.save();
-    res.json({ message: 'Sensor data saved' });
+    const log = new MovementLog({ timestamp, action, distance, systemStatus, led });
+    await log.save();
+    res.status(201).json({ message: 'Log berhasil disimpan' });
   } catch (err) {
-    console.error("❌ Gagal kirim data sensor:", err.message);
-    res.status(500).send('Gagal kirim data sensor');
+    res.status(500).json({ error: 'Gagal menyimpan log' });
   }
 });
 
