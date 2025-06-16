@@ -253,23 +253,34 @@
     }
     //Pengambilan 
     setInterval(async () => {
-      const response = await fetch('/api/movement-log');
-      const logs = await response.json();
-      
-      // Kosongkan tabel dulu
-      document.getElementById("logTableBody").innerHTML = "";
+      try {
+        const response = await fetch('/api/movement-log');
+        const logs = await response.json();
 
-      logs.forEach(log => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${new Date(log.timestamp).toLocaleTimeString()}</td>
-          <td>${log.action}</td>
-          <td>${log.distance} cm</td>
-          <td>${log.systemStatus}</td>
-          <td>${log.led}</td>
-        `;
-        document.getElementById("logTableBody").append(row);
-      });
+        // Kosongkan tabel dulu
+        document.getElementById("logTableBody").innerHTML = "";
+
+        logs.forEach(log => {
+          const timestamp = log.timestamp ? new Date(log.timestamp).toLocaleString() : "-";
+          const action = log.action || "-";
+          const distance = (log.distance !== undefined) ? `${log.distance} cm` : "-";
+          const systemStatus = log.systemStatus || "-";
+          const led = log.led || "-";
+
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${timestamp}</td>
+            <td>${action}</td>
+            <td>${distance}</td>
+            <td>${systemStatus}</td>
+            <td>${led}</td>
+          `;
+          document.getElementById("logTableBody").append(row);
+        });
+
+      } catch (err) {
+        console.error("Error loading logs: ", err);
+      }
     }, 4000);
 
     async function fetchLatestSensor() {
@@ -278,8 +289,9 @@
 
       // Update tampilan status box
       document.getElementById('ultrasonic').textContent = `${data.distance} cm`;
-      document.getElementById('servo-action').textContent = "Auto";  // contoh, nanti bisa ambil action asli
-      document.getElementById('system-status').textContent = "Running";
+      document.getElementById('servo-action').textContent = data.action || "-";
+      document.getElementById('system-status').textContent = data.systemStatus || "-";
+
 
       // LED Status
       const ledStatus = document.getElementById("led-status");

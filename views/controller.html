@@ -130,9 +130,26 @@
         .then(response => response.json())
         .then(data => {
           document.getElementById("distanceValueHTML").innerText = data.distance;
-          document.getElementById("led-red").className = data.ledRed ? "bg-red-500 w-6 h-6 rounded-full border border-gray-700" : "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
-          document.getElementById("led-yellow").className = data.ledYellow ? "bg-yellow-400 w-6 h-6 rounded-full border border-gray-700" : "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
-          document.getElementById("led-green").className = data.ledGreen ? "bg-green-500 w-6 h-6 rounded-full border border-gray-700" : "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+
+          // Normalisasi data, samakan dengan dashboard logika
+          if (data.ledRed) {
+            document.getElementById("led-red").className = "bg-red-500 w-6 h-6 rounded-full border border-gray-700";
+            document.getElementById("led-yellow").className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+            document.getElementById("led-green").className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+          } else if (data.ledYellow) {
+            document.getElementById("led-red").className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+            document.getElementById("led-yellow").className = "bg-yellow-400 w-6 h-6 rounded-full border border-gray-700";
+            document.getElementById("led-green").className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+          } else if (data.ledGreen) {
+            document.getElementById("led-red").className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+            document.getElementById("led-yellow").className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+            document.getElementById("led-green").className = "bg-green-500 w-6 h-6 rounded-full border border-gray-700";
+          } else {
+            // Jika ketiganya false/null
+              document.getElementById("led-red").className =  "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+              document.getElementById("led-yellow").className =  "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+              document.getElementById("led-green").className = "bg-gray-400 w-6 h-6 rounded-full border border-gray-700";
+          }
         })
         .catch(err => console.error('Error fetching sensor data', err));
     }
