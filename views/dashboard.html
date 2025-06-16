@@ -172,6 +172,7 @@
     const logDisplay = document.getElementById('logDisplay');
     const distanceData = [];
     const labelData = [];
+    let s1 = 90, s2 = 55, s3 = 55, s4 = 180; // Default servo values
 
     const ctx = document.getElementById('distanceChart').getContext('2d');
     const chart = new Chart(ctx, {
@@ -205,15 +206,15 @@
     });
 
     function getLedColor(distance) {
-      if (distance <= 20) return { color: 'Merah', class: 'led-red' };
-      if (distance <= 50) return { color: 'Kuning', class: 'led-yellow' };
-      return { color: 'Hijau', class: 'led-green' };
+      if (distance <= 20) return { color: 'Merah', class: 'led-merah' };
+      if (distance <= 50) return { color: 'Kuning', class: 'led-kuning' };
+      return { color: 'Hijau', class: 'led-hijau' };
     }
 
     function addLog(timestamp, move, distance, status, ledColor) {
       const row = document.createElement('tr');
       row.innerHTML = `
-        <td>${timestamp}</td>
+        <td>${new Date(timestamp).toLocaleString()}</td>
         <td>${move}</td>
         <td>${distance} cm</td>
         <td>${status}</td>
@@ -226,108 +227,39 @@
         labelData.shift();
         distanceData.shift();
       }
-      labelData.push(timestamp);
+      labelData.push(new Date(timestamp).toLocaleTimeString());
       distanceData.push(distance);
       chart.update();
 
+      // Update status cards
+      document.getElementById("servo-action").textContent = move;
+      document.getElementById("ultrasonic").textContent = `${distance} cm`;
+      document.getElementById("system-status").textContent = status;
+      
       // Update LED indicator
       const ledStatus = document.getElementById("led-status");
       ledStatus.textContent = ledColor.color;
       ledStatus.className = `led-indicator ${ledColor.class}`;
-
-      // Kirim log ke server
-      fetch('/api/movement-log', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-
-        body: JSON.stringify({
-          timestamp: new Date().toISOString(),
-          action: `S1:${s1} S2:${s2} S3:${s3} S4:${s4}`,
-          distance: 10,
-          systemStatus: "Running",
-          led: "Merah"
-        })
-      });
     }
-    //Pengambilan log movement
-    setInterval(async () => {
-      try {
-        const response = await fetch('/api/movement-log');
-        const logs = await response.json();
 
-        // Kosongkan tabel dulu
-        document.getElementById("logTableBody").innerHTML = "";
+    // Function to fetch and display logs
+    function fetchLogs() {
+      fetch('/api/movement-log')
+        .then(response => response.json())
+        .then(logs => {
+          logs.forEach(log => {
+            const ledColor = getLedColor(log.distance);
+            addLog(log.timestamp, log.action, log.distance, log.systemStatus, ledColor);
+          });
+        })
+        .catch(err => console.error('Error fetching logs:', err));
+    }
 
-        // Update chart data
-        distanceData.length = 0;
-        labelData.length = 0;
+    // Initial fetch of logs
+    fetchLogs();
 
-        logs.forEach(log => {
-          const timestamp = log.timestamp ? new Date(log.timestamp).toLocaleString() : "-";
-          const action = log.action || "-";
-          const distance = log.distance || 0;
-          const systemStatus = log.systemStatus || "-";
-          const led = log.led || "-";
-
-          // Add to table
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${timestamp}</td>
-            <td>${action}</td>
-            <td>${distance} cm</td>
-            <td>${systemStatus}</td>
-            <td class="led-${led.toLowerCase()}">${led}</td>
-          `;
-          document.getElementById("logTableBody").append(row);
-
-          // Add to chart
-          if (labelData.length < 20) {
-            labelData.push(timestamp);
-            distanceData.push(distance);
-          }
-        });
-
-        // Update chart
-        chart.update();
-
-      } catch (err) {
-        console.error("Error loading logs: ", err);
-      }
-    }, 2000);  // Update every 2 seconds
-
-    // Update sensor status
-    setInterval(async () => {
-      try {
-        const response = await fetch('/api/robot/latest-sensor');
-        const data = await response.json();
-
-        // Update status cards
-        document.getElementById('ultrasonic').textContent = `${data.distance} cm`;
-        document.getElementById('servo-action').textContent = data.action || "-";
-        document.getElementById('system-status').textContent = data.systemStatus || "-";
-
-        // Update LED status
-        const ledStatus = document.getElementById("led-status");
-        if (data.ledRed) {
-          ledStatus.textContent = 'Merah';
-          ledStatus.className = 'led-indicator led-merah';
-        } else if (data.ledYellow) {
-          ledStatus.textContent = 'Kuning';
-          ledStatus.className = 'led-indicator led-kuning';
-        } else if (data.ledGreen) {
-          ledStatus.textContent = 'Hijau';
-          ledStatus.className = 'led-indicator led-hijau';
-        } else {
-          ledStatus.textContent = '-';
-          ledStatus.className = 'led-indicator';
-        }
-      } catch (err) {
-        console.error("Error fetching sensor data:", err);
-      }
-    }, 1000);
-
+    // Set up WebSocket or polling for real-time updates
+    setInterval(fetchLogs, 5000); // Poll every 5 seconds
   </script>
 </body>
 </html>

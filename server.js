@@ -108,15 +108,34 @@ app.post('/logout', (req, res) => {
   });
 });
 
+// ✅ Endpoint API: Ambil Log Pergerakan
+app.get('/api/movement-log', async (req, res) => {
+  try {
+    const logs = await MovementLog.find()
+      .sort({ timestamp: -1 })
+      .limit(50);
+    res.json(logs);
+  } catch (err) {
+    console.error("❌ Gagal mengambil log:", err.message);
+    res.status(500).json({ error: 'Gagal mengambil log' });
+  }
+});
+
 // ✅ Endpoint API: Simpan Log Pergerakan
 app.post('/api/movement-log', async (req, res) => {
   try {
-    const { message } = req.body;
-    if (!message) {
-      return res.status(400).json({ error: 'Pesan log kosong' });
+    const { timestamp, action, distance, systemStatus, led } = req.body;
+    if (!timestamp || !action) {
+      return res.status(400).json({ error: 'Data log tidak lengkap' });
     }
 
-    const log = new MovementLog({ message });
+    const log = new MovementLog({
+      timestamp,
+      action,
+      distance: distance || 0,
+      systemStatus: systemStatus || 'Running',
+      led: led || 'Merah'
+    });
     await log.save();
 
     res.status(201).json({ message: 'Log berhasil disimpan' });
