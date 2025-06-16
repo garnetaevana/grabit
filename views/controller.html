@@ -115,7 +115,22 @@
           body: JSON.stringify({ command: { s1, s2, s3, s4 } })  // kirim posisi servo
         })
         .then(res => res.json())
-        .then(data => console.log(data))
+        .then(data => {
+          console.log(data);
+        // Kirim movement log setelah mengirim command servo
+          fetch('/api/movement-log', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              timestamp: new Date().toISOString(),
+              action: `S1:${s1} S2:${s2} S3:${s3} S4:${s4}`,
+              distance: 0, // bisa isi nilai real jika ada sensor ultrasonic
+              systemStatus: "Running",
+              led: "-"  // sesuaikan led status
+            })
+          });
+          
+        })
         .catch(err => console.error(err));
       }
 
